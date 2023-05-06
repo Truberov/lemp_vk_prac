@@ -1,0 +1,6 @@
+---
+http_host: "79.137.157.15"
+http_conf: "79.137.157.15.conf"
+http_port: "80"
+db_user: "user"
+db_password: "password"
