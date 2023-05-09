@@ -6,13 +6,25 @@
 
   tasks:
     - name: Install Prerequisites
-      apt: name={{ item }} update_cache=yes state=latest force_apt_get=yes
+      become: true
+      apt:
+        name: "{{ item }}"
+        update_cache: yes
+        state: latest
+        force_apt_get: yes
       loop: [ 'aptitude' ]
 
     - name: Install LEMP Packages
-      apt: name={{ item }} update_cache=yes state=latest
-      loop: [ 'nginx', 'mysql-server', 'python3-pymysql', 'php-fpm', 'php-mysql' ]
-    
+      become: true
+      apt:
+        name: "{{ item }}"
+        update_cache: yes
+        state: latest
+      loop:
+        - nginx
+        - php-fpm
+        - postgresql
+
 # Nginx Configuration
     - name: Sets Nginx conf file
       template:
@@ -25,34 +37,26 @@
         dest: "/etc/nginx/sites-enabled/{{ http_conf }}"
         state: link
       notify: Reload Nginx
-    
+
     - name: Removes "default" site
       file:
         path: "/etc/nginx/sites-enabled/default"
         state: absent
       notify: Reload Nginx
 
-# MySQL Configuration
-    - name: Sets the root password 
-      mysql_user: 
-        name: "{{ db_user }}" 
-        password: "{{ db_password }}"
-        login_unix_socket: /var/run/mysqld/mysqld.sock
+    # PostgreSQL Configuration
+    - name: Create a PostgreSQL Database
+      postgresql_db:
+        name: "{{ pg_database }}"
+        login_user: postgres
+        login_password: postgres
 
-    - name: Removes all anonymous user accounts
-      mysql_user:
-        name: ''
-        host_all: yes
-        state: absent
-        login_user: "{{ db_user }}" 
-        login_password: "{{ db_password }}"
-
-    - name: Removes the MySQL test database
-      mysql_db: 
-        name: test 
-        state: absent
-        login_user: "{{ db_user }}" 
-        login_password: "{{ db_password }}"
+    - name: Create a PostgreSQL User
+      postgresql_user:
+        name: "{{ pg_user }}"
+        password: "{{ pg_password }}"
+        login_user: postgres
+        login_password: postgres
 
 # UFW Configuration
     - name: "UFW - Allow HTTP on port {{ http_port }}"
@@ -77,4 +81,3 @@
       service:
         name: nginx
         state: restarted
-

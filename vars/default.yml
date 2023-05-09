@@ -1,6 +1,8 @@
 ---
-http_host: "79.137.157.15"
-http_conf: "79.137.157.15.conf"
+http_host: "31.172.64.6"
+http_conf: "31.172.64.6.conf"
 http_port: "80"
-db_user: "user"
-db_password: "password"
+pg_user: "postgres"
+pg_password: "postgres"
+pg_database: "postgres"
+ansible_become_password: "toortoor23"

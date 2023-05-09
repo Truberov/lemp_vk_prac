@@ -1,0 +1,31 @@
+pipeline {
+  agent any
+
+  environment {
+    ANSIBLE_PLAYBOOK = "path/to/ansible/playbook.yml"
+    POSTGRES_DUMP = "path/to/postgres/dump.sql"
+  }
+
+  stages {
+    stage('Checkout Git') {
+      steps {
+        git 'https://github.com/your/repo.git'
+      }
+    }
+
+    stage('Run Ansible Playbook') {
+      steps {
+        sh "ansible-playbook ${env.ANSIBLE_PLAYBOOK}"
+      }
+    }
+
+    stage('Load Postgres Dump') {
+      when {
+        expression { sh(script: 'psql -U postgres -lqt | cut -d \| -f 1 | grep -qw your_db_name', returnStatus: true) != 0 }
+      }
+      steps {
+        sh "psql -U postgres your_db_name < ${env.POSTGRES_DUMP}"
+      }
+    }
+  }
+}
