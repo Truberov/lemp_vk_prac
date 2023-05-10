@@ -1,5 +1,5 @@
 [servers]
-fornex ansible_host=31.172.64.6 ansible_ssh_user=truberov ansible_ssh_private_key_file=/home/truberov/.ssh/id_rsa
+vk_remote_host ansible_host=79.137.157.15 ansible_ssh_user=admini
 
 [all:vars]
 ansible_python_interpreter=/usr/bin/python3
