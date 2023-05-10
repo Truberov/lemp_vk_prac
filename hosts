@@ -1,5 +1,5 @@
 [servers]
-vk_remote_host ansible_host=79.137.157.15 ansible_ssh_user=admini ansible_ssh_pass=toortoor
+vk_remote_host ansible_host=79.137.157.15 ansible_ssh_user=admini
 
 [all:vars]
 ansible_python_interpreter=/usr/bin/python3
