@@ -1,6 +1,6 @@
 ## Settings
 
-- `mysql_root_password`: the password for the MySQL root account.
+- `pg_password`: the password for the postgresql account.
 - `http_host`: your domain name.
 - `http_conf`: the name of the configuration file that will be created within nginx.
 - `http_port`: HTTP port, default is 80.
@@ -19,10 +19,14 @@ nano vars/default.yml
 ```yml
 #vars/default.yml
 ---
-mysql_root_password: "mysql_root_password"
-http_host: "your_domain"
-http_conf: "your_domain.conf"
+---
+http_host: "host"
+http_conf: "host.conf"
 http_port: "80"
+pg_user: "postgres"
+pg_password: "postgres"
+pg_database: "postgres"
+ansible_become_password: "password"
 ```
 
 ### 2. Run the Playbook
