@@ -25,7 +25,7 @@
         - php-fpm
         - postgresql
 
-# Nginx Configuration
+    # Nginx Configuration
     - name: Sets Nginx conf file
       template:
         src: "files/nginx.conf.j2"
@@ -45,6 +45,16 @@
       notify: Reload Nginx
 
     # PostgreSQL Configuration
+    - name: Configure PostgreSQL
+      become: true
+      postgresql_user:
+          db: postgres
+          login_user: postgres
+          login_password: postgres
+          name: "{{ pg_user }}"
+          password: "{{ pg_password }}"
+          priv: "ALL"
+          state: present
     - name: Create a PostgreSQL Database
       postgresql_db:
         name: "{{ pg_database }}"
@@ -58,14 +68,14 @@
         login_user: postgres
         login_password: postgres
 
-# UFW Configuration
+    # UFW Configuration
     - name: "UFW - Allow HTTP on port {{ http_port }}"
       ufw:
         rule: allow
         port: "{{ http_port }}"
         proto: tcp
 
-# Sets Up PHP Info Page
+    # Sets Up PHP Info Page
     - name: Sets Up PHP Info Page
       template:
         src: "files/info.php.j2"
