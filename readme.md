@@ -25,7 +25,7 @@ http_conf: "your_domain.conf"
 http_port: "80"
 ```
 
-### 3. Run the Playbook
+### 2. Run the Playbook
 
 ```command
 ansible-playbook -l [target] -i [inventory file] -u [remote user] playbook.yml
