@@ -1,31 +1,44 @@
 pipeline {
   agent any
 
-  environment {
-    ANSIBLE_PLAYBOOK = "path/to/ansible/playbook.yml"
-    POSTGRES_DUMP = "path/to/postgres/dump.sql"
-  }
-
   stages {
-    stage('Checkout Git') {
+    stage('Checkout') {
       steps {
-        git 'https://github.com/your/repo.git'
+        checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/USERNAME/REPOSITORY.git']]])
       }
     }
 
-    stage('Run Ansible Playbook') {
+    stage('Run Ansible') {
       steps {
-        sh "ansible-playbook ${env.ANSIBLE_PLAYBOOK}"
+        ansiblePlaybook(credentialsId: 'ansible_private', inventory: 'hosts', playbook: 'playbook.yml', disableHostChecking: true)
       }
     }
 
-    stage('Load Postgres Dump') {
-      when {
-        expression { sh(script: 'psql -U postgres -lqt | cut -d \| -f 1 | grep -qw your_db_name', returnStatus: true) != 0 }
-      }
+    stage('Check if tables exist') {
       steps {
-        sh "psql -U postgres your_db_name < ${env.POSTGRES_DUMP}"
+        script {
+          def tablesExist = checkIfTablesExist()
+          if (!tablesExist) {
+            echo 'Tables do not exist in the database. Skipping dump loading.'
+            return
+          }
+        }
+      }
+    }
+
+    stage('Load database dump') {
+      steps {
+        // Загрузка дампа базы данных PostgreSQL с использованием pg_restore
+        sh 'pg_restore -U truberov -h 79.137.157.15 -d mydb backup_10_05'
       }
     }
   }
+}
+
+def checkIfTablesExist() {
+  def result = sh(
+    script: 'psql -h 79.137.157.15 -U truberov -d mydb -c "\\dt"',
+    returnStatus: true
+  )
+  return result == 0
 }
