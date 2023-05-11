@@ -10,8 +10,35 @@ pipeline {
 
     stage('Run Ansible') {
       steps {
-        sh 'ansible-playbook -i inventory.ini playbook.yml'
+        ansiblePlaybook(credentialsId: 'ansible_private', inventory: 'hosts', playbook: 'playbook.yml', disableHostChecking: true)
+      }
+    }
+
+    stage('Check if tables exist') {
+      steps {
+        script {
+          def tablesExist = checkIfTablesExist()
+          if (!tablesExist) {
+            echo 'Tables do not exist in the database. Skipping dump loading.'
+            return
+          }
+        }
+      }
+    }
+
+    stage('Load database dump') {
+      steps {
+        // Загрузка дампа базы данных PostgreSQL с использованием pg_restore
+        sh 'pg_restore -U truberov -h 79.137.157.15 -d mydb backup_10_05'
       }
     }
   }
+}
+
+def checkIfTablesExist() {
+  def result = sh(
+    script: 'psql -h 79.137.157.15 -U truberov -d mydb -c "\\dt"',
+    returnStatus: true
+  )
+  return result == 0
 }
